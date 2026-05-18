@@ -81,6 +81,10 @@ input {
 /* ==================== APP LAYOUT ==================== */
 .app {
     display: flex;
+    height: 100vh;
+}
+
+.app.player-visible {
     height: calc(100vh - var(--player-height));
 }
 

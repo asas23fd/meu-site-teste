@@ -431,6 +431,7 @@ async function playTrack(track, playlist) {
 
     updatePlayerUI(track);
     playerBar.classList.add('active');
+    document.querySelector('.app').classList.add('player-visible');
 
     // Add to recent
     addToRecent(track);
