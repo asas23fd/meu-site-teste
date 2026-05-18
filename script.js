@@ -63,7 +63,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function init() {
     audioPlayer.volume = 0.8;
-    await loadTrending();
+    await Promise.all([loadTrending(), loadCategoryArtwork()]);
+}
+
+// ==================== CATEGORY ARTWORK ====================
+async function loadCategoryArtwork() {
+    const categoryCards = document.querySelectorAll('.category-card[data-query]');
+    const promises = Array.from(categoryCards).map(async (card) => {
+        const query = card.dataset.query;
+        try {
+            const data = await fetchSoundCloud('/search/tracks', {
+                q: query,
+                limit: 1,
+                offset: 0
+            });
+            if (data && data.collection && data.collection.length > 0) {
+                const track = data.collection[0];
+                const artworkUrl = getArtworkUrl(track);
+                if (artworkUrl) {
+                    card.style.setProperty('--cat-bg', `url('${artworkUrl}')`);
+                    card.classList.add('loaded');
+                }
+            }
+        } catch (e) {
+            console.debug('Category artwork failed:', query);
+        }
+    });
+    await Promise.allSettled(promises);
 }
 
 function setupEventListeners() {
