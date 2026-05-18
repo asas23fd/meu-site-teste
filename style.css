@@ -587,16 +587,32 @@ input {
 }
 
 /* ==================== SEARCH RESULTS LAYOUT ==================== */
+.search-results {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
 .search-results-layout {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1.5fr;
     gap: 24px;
+    align-items: start;
 }
 
 .search-results-layout h3 {
     font-size: 16px;
     font-weight: 700;
     margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+.top-result {
+    min-width: 0;
+}
+
+.songs-list-container {
+    min-width: 0;
 }
 
 .top-result-card {
@@ -608,7 +624,7 @@ input {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    height: calc(100% - 40px);
+    position: relative;
 }
 
 .top-result-card:hover {
