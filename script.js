@@ -1,6 +1,7 @@
 // ==================== CONFIGURATION ====================
 const SOUNDCLOUD_CLIENT_ID = '5gMqC97v0l66zeEvGFHnZzO3hIi1xpUX';
 const SOUNDCLOUD_API = 'https://api-v2.soundcloud.com';
+const CORS_PROXY = 'https://corsproxy.io/?';
 
 // ==================== STATE ====================
 let currentTrack = null;
@@ -114,8 +115,10 @@ async function fetchSoundCloud(endpoint, params = {}) {
         url.searchParams.append(key, value);
     });
 
+    const proxyUrl = CORS_PROXY + encodeURIComponent(url.toString());
+
     try {
-        const response = await fetch(url.toString());
+        const response = await fetch(proxyUrl);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return await response.json();
     } catch (error) {
@@ -256,8 +259,9 @@ async function playTrack(track, playlist) {
         }
     });
 
-    // Get stream URL
-    const streamUrl = `${SOUNDCLOUD_API}/tracks/${track.id}/stream?client_id=${SOUNDCLOUD_CLIENT_ID}`;
+    // Get stream URL (using proxy for CORS)
+    const streamApiUrl = `${SOUNDCLOUD_API}/tracks/${track.id}/stream?client_id=${SOUNDCLOUD_CLIENT_ID}`;
+    const streamUrl = CORS_PROXY + encodeURIComponent(streamApiUrl);
     
     audioPlayer.src = streamUrl;
     
