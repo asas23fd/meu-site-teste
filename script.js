@@ -350,6 +350,14 @@ function renderCardGrid(tracks, container) {
 
 function renderTopResult(track) {
     const artworkUrl = getArtworkUrl(track);
+    
+    // Apply background image for the blurred banner effect
+    if (artworkUrl) {
+        topResultCard.style.setProperty('--bg-url', `url('${artworkUrl}')`);
+    } else {
+        topResultCard.style.removeProperty('--bg-url');
+    }
+    
     topResultCard.innerHTML = `
         <div style="position:relative;">
             ${artworkUrl 

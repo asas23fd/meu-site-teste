@@ -625,10 +625,36 @@ input {
     flex-direction: column;
     gap: 16px;
     position: relative;
+    overflow: hidden;
+}
+
+.top-result-card::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    background-image: var(--bg-url);
+    background-size: cover;
+    background-position: center;
+    filter: blur(30px) saturate(1.5);
+    opacity: 0.4;
+    z-index: 0;
+    transition: opacity 0.3s;
+}
+
+.top-result-card > * {
+    position: relative;
+    z-index: 1;
 }
 
 .top-result-card:hover {
     background: #333;
+}
+
+.top-result-card:hover::before {
+    opacity: 0.55;
 }
 
 .top-result-card:hover .tr-play-overlay {
