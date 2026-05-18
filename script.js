@@ -127,20 +127,57 @@ async function fetchSoundCloud(endpoint, params = {}) {
     }
 }
 
+// Get the real playable stream URL for a track
+async function getStreamUrl(trackId) {
+    // First get track details to find transcodings
+    const trackData = await fetchSoundCloud(`/tracks/${trackId}`);
+    if (!trackData || !trackData.media || !trackData.media.transcodings) {
+        return null;
+    }
+
+    // Find progressive stream (direct MP3) - prefer this over HLS
+    const progressive = trackData.media.transcodings.find(
+        t => t.format && t.format.protocol === 'progressive'
+    );
+    
+    const hls = trackData.media.transcodings.find(
+        t => t.format && t.format.protocol === 'hls'
+    );
+
+    const transcoding = progressive || hls;
+    if (!transcoding) return null;
+
+    // Fetch the transcoding URL to get the actual CDN URL
+    try {
+        const transcodeUrl = transcoding.url + (transcoding.url.includes('?') ? '&' : '?') + 'client_id=' + SOUNDCLOUD_CLIENT_ID;
+        const proxyUrl = CORS_PROXY + encodeURIComponent(transcodeUrl);
+        const response = await fetch(proxyUrl);
+        const data = await response.json();
+        
+        if (data && data.url) {
+            return data.url;
+        }
+    } catch (error) {
+        console.error('Stream URL Error:', error);
+    }
+    
+    return null;
+}
+
 async function loadTrending() {
     loadingState.classList.remove('hidden');
     trendingSection.classList.add('hidden');
 
     const data = await fetchSoundCloud('/search/tracks', {
-        q: 'popular',
-        limit: 20,
+        q: 'music',
+        limit: 50,
         offset: 0
     });
 
     loadingState.classList.add('hidden');
     trendingSection.classList.remove('hidden');
 
-    if (data && data.collection) {
+    if (data && data.collection && data.collection.length > 0) {
         renderTracks(data.collection, trendingTracks);
     } else {
         trendingTracks.innerHTML = '<p style="color: var(--text-secondary); text-align: center; grid-column: 1/-1;">Não foi possível carregar as músicas. Tente novamente mais tarde.</p>';
@@ -152,7 +189,7 @@ async function searchTracks(query) {
     
     const data = await fetchSoundCloud('/search/tracks', {
         q: query,
-        limit: 20,
+        limit: 50,
         offset: 0
     });
 
@@ -174,13 +211,12 @@ async function searchTracks(query) {
 function renderTracks(tracks, container) {
     container.innerHTML = '';
     
-    tracks.forEach((track, index) => {
-        // Skip tracks without stream URL
-        if (!track.stream_url && !track.media) return;
-        
+    const validTracks = tracks.filter(t => t && t.id);
+    
+    validTracks.forEach((track, index) => {
         const card = document.createElement('div');
         card.className = 'track-card';
-        card.style.animationDelay = `${index * 0.05}s`;
+        card.style.animationDelay = `${index * 0.03}s`;
         
         if (currentTrack && currentTrack.id === track.id) {
             card.classList.add('playing');
@@ -192,7 +228,7 @@ function renderTracks(tracks, container) {
         card.innerHTML = `
             <div class="track-artwork-container">
                 ${artworkUrl 
-                    ? `<img class="track-artwork" src="${artworkUrl}" alt="${escapeHtml(track.title)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'track-artwork-placeholder\\'><svg viewBox=\\'0 0 24 24\\' fill=\\'currentColor\\'><path d=\\'M12 3v10.55c-.59-.34-1.27-.55-2-.55C7.79 13 6 14.79 6 17s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z\\'/></svg></div>'">`
+                    ? `<img class="track-artwork" src="${artworkUrl}" alt="${escapeHtml(track.title)}" loading="lazy">`
                     : `<div class="track-artwork-placeholder">
                         <svg viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55C7.79 13 6 14.79 6 17s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
@@ -218,7 +254,7 @@ function renderTracks(tracks, container) {
             </div>
         `;
 
-        card.addEventListener('click', () => playTrack(track, tracks));
+        card.addEventListener('click', () => playTrack(track, validTracks));
         container.appendChild(card);
     });
 }
@@ -259,13 +295,21 @@ async function playTrack(track, playlist) {
         }
     });
 
-    // Get stream URL (using proxy for CORS)
-    const streamApiUrl = `${SOUNDCLOUD_API}/tracks/${track.id}/stream?client_id=${SOUNDCLOUD_CLIENT_ID}`;
-    const streamUrl = CORS_PROXY + encodeURIComponent(streamApiUrl);
-    
-    audioPlayer.src = streamUrl;
-    
+    // Show loading state on play button
+    playIcon.classList.add('hidden');
+    pauseIcon.classList.add('hidden');
+
     try {
+        // Get the real stream URL via transcodings
+        const streamUrl = await getStreamUrl(track.id);
+        
+        if (!streamUrl) {
+            showToast('Música não disponível para reprodução.');
+            updatePlayButton();
+            return;
+        }
+
+        audioPlayer.src = streamUrl;
         await audioPlayer.play();
         isPlaying = true;
         updatePlayButton();
@@ -273,6 +317,7 @@ async function playTrack(track, playlist) {
     } catch (error) {
         console.error('Playback error:', error);
         showToast('Erro ao reproduzir. Tente outra música.');
+        updatePlayButton();
     }
 }
 
