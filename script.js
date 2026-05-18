@@ -10,14 +10,24 @@ let currentIndex = -1;
 let isPlaying = false;
 let isMuted = false;
 let previousVolume = 80;
+let recentTracks = [];
+let pageHistory = ['home'];
+let historyIndex = 0;
 
 // ==================== DOM ELEMENTS ====================
 const searchInput = document.getElementById('searchInput');
 const searchLoader = document.getElementById('searchLoader');
 const trendingSection = document.getElementById('trendingSection');
 const trendingTracks = document.getElementById('trendingTracks');
-const searchSection = document.getElementById('searchSection');
+const recentSection = document.getElementById('recentSection');
+const recentTracksEl = document.getElementById('recentTracks');
+const searchPage = document.getElementById('searchPage');
+const homePage = document.getElementById('homePage');
+const searchCategories = document.getElementById('searchCategories');
+const searchResultsContainer = document.getElementById('searchResultsContainer');
 const searchResults = document.getElementById('searchResults');
+const searchResultsTitle = document.getElementById('searchResultsTitle');
+const topResultCard = document.getElementById('topResultCard');
 const emptyState = document.getElementById('emptyState');
 const loadingState = document.getElementById('loadingState');
 const playerBar = document.getElementById('playerBar');
@@ -29,6 +39,8 @@ const playIcon = document.getElementById('playIcon');
 const pauseIcon = document.getElementById('pauseIcon');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
+const shuffleBtn = document.getElementById('shuffleBtn');
+const repeatBtn = document.getElementById('repeatBtn');
 const progressBar = document.getElementById('progressBar');
 const progressKnob = document.getElementById('progressKnob');
 const progressBarContainer = document.getElementById('progressBarContainer');
@@ -39,6 +51,9 @@ const volumeIcon = document.getElementById('volumeIcon');
 const volumeMuteIcon = document.getElementById('volumeMuteIcon');
 const volumeSlider = document.getElementById('volumeSlider');
 const audioPlayer = document.getElementById('audioPlayer');
+const backBtn = document.getElementById('backBtn');
+const forwardBtn = document.getElementById('forwardBtn');
+const likeBtn = document.getElementById('likeBtn');
 
 // ==================== INITIALIZATION ====================
 document.addEventListener('DOMContentLoaded', () => {
@@ -59,9 +74,7 @@ function setupEventListeners() {
         const query = e.target.value.trim();
         
         if (query.length === 0) {
-            searchSection.classList.add('hidden');
-            trendingSection.classList.remove('hidden');
-            emptyState.classList.add('hidden');
+            showPage('home');
             return;
         }
 
@@ -77,12 +90,59 @@ function setupEventListeners() {
         }
     });
 
+    // Navigation
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const page = item.dataset.page;
+            if (page === 'search') {
+                showPage('search');
+                searchInput.focus();
+            } else {
+                showPage('home');
+                searchInput.value = '';
+            }
+        });
+    });
+
+    // Category cards
+    document.querySelectorAll('.category-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const query = card.dataset.query;
+            searchInput.value = query;
+            searchTracks(query);
+        });
+    });
+
+    // Nav history buttons
+    backBtn.addEventListener('click', () => {
+        if (historyIndex > 0) {
+            historyIndex--;
+            restorePage();
+        }
+    });
+    forwardBtn.addEventListener('click', () => {
+        if (historyIndex < pageHistory.length - 1) {
+            historyIndex++;
+            restorePage();
+        }
+    });
+
     // Player controls
     playBtn.addEventListener('click', togglePlay);
     prevBtn.addEventListener('click', playPrevious);
     nextBtn.addEventListener('click', playNext);
     volumeBtn.addEventListener('click', toggleMute);
     volumeSlider.addEventListener('input', changeVolume);
+
+    // Like button
+    likeBtn.addEventListener('click', () => {
+        likeBtn.classList.toggle('liked');
+    });
+
+    // Shuffle / Repeat (visual toggle only)
+    shuffleBtn.addEventListener('click', () => shuffleBtn.classList.toggle('active'));
+    repeatBtn.addEventListener('click', () => repeatBtn.classList.toggle('active'));
 
     // Progress bar
     progressBarContainer.addEventListener('click', seekTo);
@@ -106,6 +166,39 @@ function setupEventListeners() {
     });
 }
 
+// ==================== PAGE NAVIGATION ====================
+function showPage(page) {
+    homePage.classList.toggle('hidden', page !== 'home');
+    searchPage.classList.toggle('hidden', page !== 'search');
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.page === page);
+    });
+
+    if (page !== pageHistory[historyIndex]) {
+        pageHistory = pageHistory.slice(0, historyIndex + 1);
+        pageHistory.push(page);
+        historyIndex = pageHistory.length - 1;
+    }
+
+    updateNavButtons();
+}
+
+function restorePage() {
+    const page = pageHistory[historyIndex];
+    homePage.classList.toggle('hidden', page !== 'home');
+    searchPage.classList.toggle('hidden', page !== 'search');
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.page === page);
+    });
+    updateNavButtons();
+}
+
+function updateNavButtons() {
+    backBtn.disabled = historyIndex <= 0;
+    forwardBtn.disabled = historyIndex >= pageHistory.length - 1;
+}
+
 // ==================== SOUNDCLOUD API ====================
 async function fetchSoundCloud(endpoint, params = {}) {
     const url = new URL(`${SOUNDCLOUD_API}${endpoint}`);
@@ -127,19 +220,13 @@ async function fetchSoundCloud(endpoint, params = {}) {
     }
 }
 
-// Get the real playable stream URL for a track
 async function getStreamUrl(trackId) {
-    // First get track details to find transcodings
     const trackData = await fetchSoundCloud(`/tracks/${trackId}`);
-    if (!trackData || !trackData.media || !trackData.media.transcodings) {
-        return null;
-    }
+    if (!trackData || !trackData.media || !trackData.media.transcodings) return null;
 
-    // Find progressive stream (direct MP3) - prefer this over HLS
     const progressive = trackData.media.transcodings.find(
         t => t.format && t.format.protocol === 'progressive'
     );
-    
     const hls = trackData.media.transcodings.find(
         t => t.format && t.format.protocol === 'hls'
     );
@@ -147,20 +234,15 @@ async function getStreamUrl(trackId) {
     const transcoding = progressive || hls;
     if (!transcoding) return null;
 
-    // Fetch the transcoding URL to get the actual CDN URL
     try {
         const transcodeUrl = transcoding.url + (transcoding.url.includes('?') ? '&' : '?') + 'client_id=' + SOUNDCLOUD_CLIENT_ID;
         const proxyUrl = CORS_PROXY + encodeURIComponent(transcodeUrl);
         const response = await fetch(proxyUrl);
         const data = await response.json();
-        
-        if (data && data.url) {
-            return data.url;
-        }
+        if (data && data.url) return data.url;
     } catch (error) {
         console.error('Stream URL Error:', error);
     }
-    
     return null;
 }
 
@@ -169,7 +251,7 @@ async function loadTrending() {
     trendingSection.classList.add('hidden');
 
     const data = await fetchSoundCloud('/search/tracks', {
-        q: 'music',
+        q: 'popular music',
         limit: 50,
         offset: 0
     });
@@ -178,14 +260,15 @@ async function loadTrending() {
     trendingSection.classList.remove('hidden');
 
     if (data && data.collection && data.collection.length > 0) {
-        renderTracks(data.collection, trendingTracks);
+        renderCardGrid(data.collection, trendingTracks);
     } else {
-        trendingTracks.innerHTML = '<p style="color: var(--text-secondary); text-align: center; grid-column: 1/-1;">Não foi possível carregar as músicas. Tente novamente mais tarde.</p>';
+        trendingTracks.innerHTML = '<p style="color: var(--text-secondary); text-align: center; grid-column: 1/-1;">Não foi possível carregar as músicas.</p>';
     }
 }
 
 async function searchTracks(query) {
     searchLoader.classList.add('active');
+    showPage('search');
     
     const data = await fetchSoundCloud('/search/tracks', {
         q: query,
@@ -196,21 +279,27 @@ async function searchTracks(query) {
     searchLoader.classList.remove('active');
 
     if (data && data.collection && data.collection.length > 0) {
-        trendingSection.classList.add('hidden');
-        searchSection.classList.remove('hidden');
+        searchCategories.classList.add('hidden');
+        searchResultsContainer.classList.remove('hidden');
         emptyState.classList.add('hidden');
-        renderTracks(data.collection, searchResults);
+        searchResultsTitle.textContent = `Resultados para "${query}"`;
+
+        // Top result = first track
+        renderTopResult(data.collection[0]);
+        // Songs list = all tracks
+        renderSongsList(data.collection.slice(0, 20));
+        // Card grid for additional
+        // renderCardGrid(data.collection, searchResults);
     } else {
-        trendingSection.classList.add('hidden');
-        searchSection.classList.add('hidden');
+        searchCategories.classList.add('hidden');
+        searchResultsContainer.classList.add('hidden');
         emptyState.classList.remove('hidden');
     }
 }
 
 // ==================== RENDERING ====================
-function renderTracks(tracks, container) {
+function renderCardGrid(tracks, container) {
     container.innerHTML = '';
-    
     const validTracks = tracks.filter(t => t && t.id);
     
     validTracks.forEach((track, index) => {
@@ -259,13 +348,65 @@ function renderTracks(tracks, container) {
     });
 }
 
+function renderTopResult(track) {
+    const artworkUrl = getArtworkUrl(track);
+    topResultCard.innerHTML = `
+        <div style="position:relative;">
+            ${artworkUrl 
+                ? `<img class="top-result-artwork" src="${artworkUrl}" alt="${escapeHtml(track.title)}">`
+                : `<div class="top-result-artwork" style="background: linear-gradient(135deg, #450af5, #c4efd9);"></div>`
+            }
+        </div>
+        <div>
+            <div class="top-result-title">${escapeHtml(track.title)}</div>
+            <div class="top-result-type">Música</div>
+        </div>
+        <div class="tr-play-overlay">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+    `;
+    topResultCard.onclick = () => playTrack(track, [track]);
+}
+
+function renderSongsList(tracks) {
+    searchResults.innerHTML = '';
+    const validTracks = tracks.filter(t => t && t.id);
+
+    validTracks.forEach((track, index) => {
+        const row = document.createElement('div');
+        row.className = 'song-row';
+        if (currentTrack && currentTrack.id === track.id) row.classList.add('playing');
+
+        const artworkUrl = getArtworkUrl(track);
+        const duration = track.duration ? formatTime(track.duration / 1000) : '--:--';
+
+        row.innerHTML = `
+            <div class="song-artwork-col">
+                ${artworkUrl 
+                    ? `<img class="song-artwork-small" src="${artworkUrl}" alt="">`
+                    : `<div class="song-artwork-small" style="background: linear-gradient(135deg, #450af5, #c4efd9);"></div>`
+                }
+                <span class="song-num">${index + 1}</span>
+                <div class="song-play-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+            </div>
+            <div class="song-title-col">
+                <div class="song-title">${escapeHtml(track.title)}</div>
+                <div class="song-artist-name">${escapeHtml(track.user ? track.user.username : 'Desconhecido')}</div>
+            </div>
+            <div class="song-album">SoundCloud</div>
+            <div class="song-duration">${duration}</div>
+        `;
+
+        row.addEventListener('click', () => playTrack(track, validTracks));
+        searchResults.appendChild(row);
+    });
+}
+
 function getArtworkUrl(track) {
-    if (track.artwork_url) {
-        return track.artwork_url.replace('-large', '-t300x300');
-    }
-    if (track.user && track.user.avatar_url) {
-        return track.user.avatar_url.replace('-large', '-t300x300');
-    }
+    if (track.artwork_url) return track.artwork_url.replace('-large', '-t300x300');
+    if (track.user && track.user.avatar_url) return track.user.avatar_url.replace('-large', '-t300x300');
     return null;
 }
 
@@ -280,29 +421,21 @@ async function playTrack(track, playlist) {
     currentPlaylist = playlist || [track];
     currentIndex = currentPlaylist.findIndex(t => t.id === track.id);
 
-    // Update UI
     updatePlayerUI(track);
     playerBar.classList.add('active');
 
-    // Highlight active card
-    document.querySelectorAll('.track-card').forEach(card => {
-        card.classList.remove('playing');
-    });
-    document.querySelectorAll('.track-card').forEach(card => {
-        const title = card.querySelector('.track-title');
-        if (title && title.textContent === track.title) {
-            card.classList.add('playing');
-        }
-    });
+    // Add to recent
+    addToRecent(track);
 
-    // Show loading state on play button
+    // Highlight playing cards
+    document.querySelectorAll('.track-card').forEach(c => c.classList.remove('playing'));
+    document.querySelectorAll('.song-row').forEach(r => r.classList.remove('playing'));
+
     playIcon.classList.add('hidden');
     pauseIcon.classList.add('hidden');
 
     try {
-        // Get the real stream URL via transcodings
         const streamUrl = await getStreamUrl(track.id);
-        
         if (!streamUrl) {
             showToast('Música não disponível para reprodução.');
             updatePlayButton();
@@ -323,7 +456,6 @@ async function playTrack(track, playlist) {
 
 function updatePlayerUI(track) {
     const artworkUrl = getArtworkUrl(track);
-    
     if (artworkUrl) {
         playerArtwork.innerHTML = `<img src="${artworkUrl}" alt="${escapeHtml(track.title)}">`;
     } else {
@@ -332,14 +464,19 @@ function updatePlayerUI(track) {
 
     playerTitle.textContent = track.title;
     playerArtist.textContent = track.user ? track.user.username : 'Desconhecido';
-    
-    // Update page title
-    document.title = `${track.title} - SoundVibe`;
+    document.title = `${track.title} — SoundVibe`;
+}
+
+function addToRecent(track) {
+    recentTracks = recentTracks.filter(t => t.id !== track.id);
+    recentTracks.unshift(track);
+    if (recentTracks.length > 6) recentTracks = recentTracks.slice(0, 6);
+    renderCardGrid(recentTracks, recentTracksEl);
+    recentSection.classList.remove('hidden');
 }
 
 function togglePlay() {
     if (!currentTrack) return;
-
     if (isPlaying) {
         audioPlayer.pause();
         isPlaying = false;
@@ -439,12 +576,7 @@ function escapeHtml(text) {
 }
 
 function showToast(message) {
-    let toast = document.querySelector('.toast');
-    if (!toast) {
-        toast = document.createElement('div');
-        toast.className = 'toast';
-        document.body.appendChild(toast);
-    }
+    const toast = document.getElementById('toast');
     toast.textContent = message;
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 3000);

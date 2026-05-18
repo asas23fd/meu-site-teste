@@ -3,164 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SoundVibe - Ouve Música</title>
+    <title>SoundVibe — Clone Spotify</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
 </head>
 <body>
-    <!-- Animated Background -->
-    <div class="bg-animation">
-        <div class="bg-blob blob-1"></div>
-        <div class="bg-blob blob-2"></div>
-        <div class="bg-blob blob-3"></div>
-    </div>
+    <div class="app">
+        <!-- LEFT SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-top">
+                <div class="logo">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 14.36c-.2.3-.56.4-.86.2-2.34-1.43-5.28-1.76-8.76-.96-.34.08-.66-.14-.74-.46-.08-.34.14-.66.46-.74 3.82-.88 7.1-.5 9.72 1.1.3.18.38.56.18.86zm1.22-2.72c-.24.38-.76.5-1.14.24-2.68-1.64-6.76-2.12-9.92-1.16-.4.12-.82-.1-.94-.5-.12-.4.1-.82.5-.94 3.62-1.1 8.1-.56 11.18 1.32.36.24.48.74.24 1.12l.08-.08zm.1-2.82c-3.22-1.9-8.5-2.08-11.56-1.14-.48.14-1-.12-1.14-.62-.14-.48.12-1 .62-1.14 3.54-1.08 9.4-.86 13.1 1.32.44.26.6.84.32 1.28-.24.44-.84.58-1.28.32l-.06-.02z"/>
+                    </svg>
+                    <span>SoundVibe</span>
+                </div>
 
-    <!-- Header -->
-    <header class="header">
-        <div class="header-content">
-            <div class="logo">
-                <svg class="logo-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="20" cy="20" r="18" stroke="url(#grad1)" stroke-width="3"/>
-                    <path d="M16 12L16 28" stroke="url(#grad1)" stroke-width="3" stroke-linecap="round">
-                        <animate attributeName="d" values="M16 12L16 28;M16 16L16 24;M16 12L16 28" dur="1s" repeatCount="indefinite"/>
-                    </path>
-                    <path d="M24 16L24 28" stroke="url(#grad1)" stroke-width="3" stroke-linecap="round">
-                        <animate attributeName="d" values="M24 16L24 28;M24 12L24 28;M24 16L24 28" dur="0.8s" repeatCount="indefinite"/>
-                    </path>
-                    <defs>
-                        <linearGradient id="grad1" x1="0" y1="0" x2="40" y2="40">
-                            <stop offset="0%" stop-color="#667eea"/>
-                            <stop offset="100%" stop-color="#764ba2"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
-                <span class="logo-text">SoundVibe</span>
+                <nav class="main-nav">
+                    <a href="#" class="nav-item active" data-page="home">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l-10 9h3v9h6v-6h2v6h6v-9h3L12 3z"/></svg>
+                        <span>Início</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="search">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                        <span>Buscar</span>
+                    </a>
+                </nav>
             </div>
-            <div class="search-container">
-                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-                </svg>
-                <input type="text" id="searchInput" placeholder="Pesquisar músicas..." autocomplete="off">
-                <div class="search-loader" id="searchLoader">
-                    <div class="loader-dot"></div>
-                    <div class="loader-dot"></div>
-                    <div class="loader-dot"></div>
+
+            <div class="sidebar-bottom">
+                <div class="library-header">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zm-6-1h2V9h-2v6zm-4 0h2V7H10v8zm8 0h2v-4h-2v4z"/></svg>
+                    <span>Sua Biblioteca</span>
+                </div>
+                <div class="recently-played" id="recentlyPlayed">
+                    <div class="library-empty">
+                        <p>Faça login para ver suas músicas curtidas</p>
+                    </div>
                 </div>
             </div>
-        </div>
-    </header>
+        </aside>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Trending Section -->
-        <section class="section" id="trendingSection">
-            <h2 class="section-title">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="section-icon">
-                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                </svg>
-                Populares
-            </h2>
-            <div class="tracks-grid" id="trendingTracks">
-                <!-- Tracks will be loaded here -->
-            </div>
-        </section>
-
-        <!-- Search Results Section -->
-        <section class="section hidden" id="searchSection">
-            <h2 class="section-title">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="section-icon">
-                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-                </svg>
-                Resultados da Pesquisa
-            </h2>
-            <div class="tracks-grid" id="searchResults">
-                <!-- Search results will be loaded here -->
-            </div>
-        </section>
-
-        <!-- Empty State -->
-        <div class="empty-state hidden" id="emptyState">
-            <svg viewBox="0 0 120 120" fill="none" class="empty-icon">
-                <circle cx="60" cy="60" r="50" stroke="#667eea" stroke-width="2" opacity="0.3"/>
-                <path d="M45 40v40M55 35v50M65 45v30M75 50v20" stroke="#667eea" stroke-width="4" stroke-linecap="round">
-                    <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
-                </path>
-            </svg>
-            <p>Nenhum resultado encontrado</p>
-        </div>
-
-        <!-- Loading State -->
-        <div class="loading-state" id="loadingState">
-            <div class="pulse-loader">
-                <div class="pulse-ring"></div>
-                <div class="pulse-ring"></div>
-                <div class="pulse-ring"></div>
-                <svg viewBox="0 0 24 24" fill="currentColor" class="pulse-icon">
-                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55C7.79 13 6 14.79 6 17s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-                </svg>
-            </div>
-            <p>A carregar músicas...</p>
-        </div>
-    </main>
-
-    <!-- Player Bar -->
-    <div class="player-bar" id="playerBar">
-        <div class="player-progress-bar" id="progressBarContainer">
-            <div class="player-progress" id="progressBar"></div>
-            <div class="player-progress-knob" id="progressKnob"></div>
-        </div>
-        <div class="player-content">
-            <div class="player-track-info">
-                <div class="player-artwork" id="playerArtwork">
-                    <svg viewBox="0 0 24 24" fill="currentColor" opacity="0.5">
-                        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55C7.79 13 6 14.79 6 17s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-                    </svg>
-                </div>
-                <div class="player-text">
-                    <span class="player-title" id="playerTitle">Nenhuma música selecionada</span>
-                    <span class="player-artist" id="playerArtist"></span>
-                </div>
-            </div>
-            <div class="player-controls">
-                <button class="control-btn" id="prevBtn" title="Anterior">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/>
-                    </svg>
-                </button>
-                <button class="control-btn play-btn" id="playBtn" title="Reproduzir">
-                    <svg viewBox="0 0 24 24" fill="currentColor" id="playIcon">
-                        <path d="M8 5v14l11-7z"/>
-                    </svg>
-                    <svg viewBox="0 0 24 24" fill="currentColor" id="pauseIcon" class="hidden">
-                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                    </svg>
-                </button>
-                <button class="control-btn" id="nextBtn" title="Seguinte">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
-                    </svg>
-                </button>
-            </div>
-            <div class="player-extra">
-                <span class="time-display">
-                    <span id="currentTime">0:00</span> / <span id="totalTime">0:00</span>
-                </span>
-                <div class="volume-container">
-                    <button class="control-btn volume-btn" id="volumeBtn" title="Volume">
-                        <svg viewBox="0 0 24 24" fill="currentColor" id="volumeIcon">
-                            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-                        </svg>
-                        <svg viewBox="0 0 24 24" fill="currentColor" id="volumeMuteIcon" class="hidden">
-                            <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
-                        </svg>
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- TOP BAR -->
+            <header class="top-bar">
+                <div class="nav-buttons">
+                    <button class="nav-btn" id="backBtn" disabled>
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
                     </button>
-                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="80">
+                    <button class="nav-btn" id="forwardBtn" disabled>
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                    </button>
+                </div>
+
+                <div class="search-bar" id="searchBarContainer">
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="search-icon"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    <input type="text" id="searchInput" placeholder="O que queres ouvir?" autocomplete="off">
+                    <div class="search-spinner" id="searchLoader">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+
+                <div class="user-section">
+                    <div class="user-avatar">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    </div>
+                </div>
+            </header>
+
+            <!-- SCROLLABLE CONTENT -->
+            <div class="content-scroll" id="contentScroll">
+                <!-- HOME PAGE -->
+                <div class="page" id="homePage">
+                    <section class="section" id="trendingSection">
+                        <div class="section-header">
+                            <h2 class="section-title">Músicas Populares</h2>
+                            <a href="#" class="see-all" id="seeAllTrending">Mostrar tudo</a>
+                        </div>
+                        <div class="card-grid" id="trendingTracks"></div>
+                    </section>
+
+                    <section class="section" id="recentSection">
+                        <div class="section-header">
+                            <h2 class="section-title">Tocadas Recentemente</h2>
+                        </div>
+                        <div class="card-grid" id="recentTracks"></div>
+                    </section>
+                </div>
+
+                <!-- SEARCH PAGE -->
+                <div class="page hidden" id="searchPage">
+                    <div class="search-categories" id="searchCategories">
+                        <h2 class="section-title">Explorar Tudo</h2>
+                        <div class="category-grid">
+                            <div class="category-card" style="background: #e8115b;" data-query="pop"><span>Pop</span></div>
+                            <div class="category-card" style="background: #1e3264;" data-query="hip hop rap"><span>Hip-Hop</span></div>
+                            <div class="category-card" style="background: #e13300;" data-query="rock"><span>Rock</span></div>
+                            <div class="category-card" style="background: #477d95;" data-query="electronic"><span>Eletrônica</span></div>
+                            <div class="category-card" style="background: #509bf5;" data-query="r&b soul"><span>R&B</span></div>
+                            <div class="category-card" style="background: #8c67ac;" data-query="indie"><span>Indie</span></div>
+                            <div class="category-card" style="background: #f59b23;" data-query="jazz"><span>Jazz</span></div>
+                            <div class="category-card" style="background: #148a08;" data-query="funk brasil"><span>Funk</span></div>
+                            <div class="category-card" style="background: #e1118c;" data-query="kpop"><span>K-Pop</span></div>
+                            <div class="category-card" style="background: #7358ff;" data-query="reggaeton"><span>Reggaeton</span></div>
+                            <div class="category-card" style="background: #1db954;" data-query="samba"><span>Samba</span></div>
+                            <div class="category-card" style="background: #ba5d07;" data-query="sertanejo"><span>Sertanejo</span></div>
+                        </div>
+                    </div>
+
+                    <div class="search-results hidden" id="searchResultsContainer">
+                        <div class="section-header">
+                            <h2 class="section-title" id="searchResultsTitle">Resultados</h2>
+                        </div>
+                        <!-- Top Result + Songs -->
+                        <div class="search-results-layout">
+                            <div class="top-result" id="topResult">
+                                <h3>Resultado principal</h3>
+                                <div class="top-result-card" id="topResultCard"></div>
+                            </div>
+                            <div class="songs-list-container">
+                                <h3>Músicas</h3>
+                                <div class="songs-list" id="searchResults"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="empty-state hidden" id="emptyState">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="64" height="64"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                        <h3>Nenhum resultado encontrado</h3>
+                        <p>Verifique a ortografia ou tente outros termos.</p>
+                    </div>
+                </div>
+
+                <!-- Loading -->
+                <div class="loading-state" id="loadingState">
+                    <div class="spinner large"></div>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 
-    <audio id="audioPlayer" preload="auto"></audio>
+    <!-- PLAYER BAR -->
+    <footer class="player-bar" id="playerBar">
+        <div class="player-left">
+            <div class="player-artwork" id="playerArtwork">
+                <svg viewBox="0 0 24 24" fill="currentColor" opacity="0.3"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55C7.79 13 6 14.79 6 17s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+            </div>
+            <div class="player-info">
+                <div class="player-title" id="playerTitle">—</div>
+                <div class="player-artist" id="playerArtist">—</div>
+            </div>
+            <button class="player-like-btn" id="likeBtn">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg>
+            </button>
+        </div>
+
+        <div class="player-center">
+            <div class="player-controls">
+                <button class="control-btn" id="shuffleBtn">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+                </button>
+                <button class="control-btn" id="prevBtn">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+                </button>
+                <button class="control-btn play-btn" id="playBtn">
+                    <svg viewBox="0 0 24 24" fill="currentColor" id="playIcon"><path d="M8 5v14l11-7z"/></svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor" id="pauseIcon" class="hidden"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+                <button class="control-btn" id="nextBtn">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+                </button>
+                <button class="control-btn" id="repeatBtn">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
+                </button>
+            </div>
+            <div class="progress-container">
+                <span class="time" id="currentTime">0:00</span>
+                <div class="progress-bar-container" id="progressBarContainer">
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    <div class="progress-knob" id="progressKnob"></div>
+                </div>
+                <span class="time" id="totalTime">0:00</span>
+            </div>
+        </div>
+
+        <div class="player-right">
+            <button class="control-btn" id="queueBtn">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/></svg>
+            </button>
+            <button class="control-btn" id="volumeBtn">
+                <svg viewBox="0 0 24 24" fill="currentColor" id="volumeIcon"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                <svg viewBox="0 0 24 24" fill="currentColor" id="volumeMuteIcon" class="hidden"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+            </button>
+            <div class="volume-slider-container">
+                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="80">
+            </div>
+        </div>
+    </footer>
+
+    <audio id="audioPlayer" preload="none"></audio>
+    <div class="toast" id="toast"></div>
 
     <script src="script.js"></script>
 </body>
