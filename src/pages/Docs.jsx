@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
-import { FiChevronDown, FiChevronRight, FiCopy, FiCheck, FiTerminal } from 'react-icons/fi';
+import { FiChevronDown, FiCopy, FiCheck, FiTerminal } from 'react-icons/fi';
 
 function AnimatedSection({ children, delay = 0 }) {
   const ref = useRef(null);

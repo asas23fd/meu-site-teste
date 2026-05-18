@@ -1,8 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
-import { FiShield, FiKey, FiCode, FiUsers, FiZap, FiLock, FiCheck, FiArrowRight, FiActivity, FiServer, FiClock } from 'react-icons/fi';
-import Logo from '../components/Logo';
+import { FiShield, FiKey, FiCode, FiUsers, FiZap, FiLock, FiArrowRight, FiActivity, FiServer, FiClock } from 'react-icons/fi';
 
 function AnimatedSection({ children, delay = 0 }) {
   const ref = useRef(null);
@@ -21,29 +20,41 @@ function AnimatedSection({ children, delay = 0 }) {
 }
 
 function ParticlesBackground() {
+  const particles = useMemo(() => {
+    const seeded = (i, n) => ((i * 9301 + 49297) % 233280) / 233280;
+    return [...Array(20)].map((_, i) => ({
+      width: seeded(i, 1) * 4 + 2,
+      height: seeded(i, 2) * 4 + 2,
+      left: `${seeded(i, 3) * 100}%`,
+      top: `${seeded(i, 4) * 100}%`,
+      duration: seeded(i, 5) * 3 + 2,
+      delay: seeded(i, 6) * 2,
+    }));
+  }, []);
+
   return (
     <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-      {[...Array(20)].map((_, i) => (
+      {particles.map((p, i) => (
         <motion.div
           key={i}
           style={{
             position: 'absolute',
-            width: Math.random() * 4 + 2,
-            height: Math.random() * 4 + 2,
+            width: p.width,
+            height: p.height,
             borderRadius: '50%',
             background: 'var(--accent)',
             opacity: 0.15,
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
+            left: p.left,
+            top: p.top,
           }}
           animate={{
             y: [0, -30, 0],
             opacity: [0.1, 0.3, 0.1],
           }}
           transition={{
-            duration: Math.random() * 3 + 2,
+            duration: p.duration,
             repeat: Infinity,
-            delay: Math.random() * 2,
+            delay: p.delay,
             ease: 'easeInOut',
           }}
         />

@@ -87,7 +87,7 @@ export default function Pricing() {
                 <ul style={{ listStyle: 'none', flex: 1, marginBottom: 24 }}>
                   {plan.features.map((feat, j) => (
                     <li key={j} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>
-                      <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--success)', background: 'rgba(34,197,94,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(34,197,94,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <FiCheck size={12} style={{ color: 'var(--success)' }} />
                       </div>
                       {feat}

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiUsers, FiKey, FiActivity, FiServer, FiCopy, FiCheck, FiCode, FiLogOut, FiUser, FiCalendar, FiShield, FiBarChart2 } from 'react-icons/fi';
+import { FiUsers, FiKey, FiActivity, FiServer, FiCopy, FiCheck, FiLogOut, FiUser, FiCalendar, FiShield, FiBarChart2 } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 
 const LANG_TABS = [
