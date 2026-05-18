@@ -568,9 +568,9 @@ input {
 }
 
 .category-card {
-    height: 200px;
+    height: 260px;
     border-radius: var(--radius-lg);
-    padding: 16px;
+    padding: 20px;
     cursor: pointer;
     overflow: hidden;
     position: relative;
@@ -583,7 +583,7 @@ input {
 }
 
 .category-card span {
-    font-size: 22px;
+    font-size: 26px;
     font-weight: 700;
     color: #fff;
     position: relative;
