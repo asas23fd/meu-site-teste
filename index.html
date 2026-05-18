@@ -3,57 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Site de Teste</title>
+    <title>SoundVibe - Ouve Música</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
 </head>
 <body>
-    <header>
-        <nav>
-            <h1>🚀 Meu Site</h1>
-            <ul>
-                <li><a href="#home">Início</a></li>
-                <li><a href="#sobre">Sobre</a></li>
-                <li><a href="#contacto">Contacto</a></li>
-            </ul>
-        </nav>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="bg-blob blob-1"></div>
+        <div class="bg-blob blob-2"></div>
+        <div class="bg-blob blob-3"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="20" cy="20" r="18" stroke="url(#grad1)" stroke-width="3"/>
+                    <path d="M16 12L16 28" stroke="url(#grad1)" stroke-width="3" stroke-linecap="round">
+                        <animate attributeName="d" values="M16 12L16 28;M16 16L16 24;M16 12L16 28" dur="1s" repeatCount="indefinite"/>
+                    </path>
+                    <path d="M24 16L24 28" stroke="url(#grad1)" stroke-width="3" stroke-linecap="round">
+                        <animate attributeName="d" values="M24 16L24 28;M24 12L24 28;M24 16L24 28" dur="0.8s" repeatCount="indefinite"/>
+                    </path>
+                    <defs>
+                        <linearGradient id="grad1" x1="0" y1="0" x2="40" y2="40">
+                            <stop offset="0%" stop-color="#667eea"/>
+                            <stop offset="100%" stop-color="#764ba2"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="logo-text">SoundVibe</span>
+            </div>
+            <div class="search-container">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Pesquisar músicas..." autocomplete="off">
+                <div class="search-loader" id="searchLoader">
+                    <div class="loader-dot"></div>
+                    <div class="loader-dot"></div>
+                    <div class="loader-dot"></div>
+                </div>
+            </div>
+        </div>
     </header>
 
-    <main>
-        <section id="home" class="hero">
-            <h2>Bem-vindo ao Meu Site de Teste</h2>
-            <p>Este é um site simples criado para demonstrar o GitHub Pages.</p>
-            <button id="cta-button">Clique Aqui!</button>
-            <p id="message"></p>
-        </section>
-
-        <section id="sobre" class="about">
-            <h2>Sobre</h2>
-            <p>Este site foi construído com HTML, CSS e JavaScript puro. É um projeto de teste para demonstrar a hospedagem gratuita no GitHub Pages.</p>
-            <div class="cards">
-                <div class="card">
-                    <h3>🎨 Design</h3>
-                    <p>Layout responsivo e moderno com CSS puro.</p>
-                </div>
-                <div class="card">
-                    <h3>⚡ Performance</h3>
-                    <p>Sem frameworks pesados, carregamento instantâneo.</p>
-                </div>
-                <div class="card">
-                    <h3>🌐 GitHub Pages</h3>
-                    <p>Hospedado gratuitamente pelo GitHub.</p>
-                </div>
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Trending Section -->
+        <section class="section" id="trendingSection">
+            <h2 class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="section-icon">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                </svg>
+                Populares
+            </h2>
+            <div class="tracks-grid" id="trendingTracks">
+                <!-- Tracks will be loaded here -->
             </div>
         </section>
 
-        <section id="contacto" class="contact">
-            <h2>Contacto</h2>
-            <p>Este é apenas um site de teste. Sem formulários reais por agora! 😄</p>
+        <!-- Search Results Section -->
+        <section class="section hidden" id="searchSection">
+            <h2 class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="section-icon">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+                Resultados da Pesquisa
+            </h2>
+            <div class="tracks-grid" id="searchResults">
+                <!-- Search results will be loaded here -->
+            </div>
         </section>
+
+        <!-- Empty State -->
+        <div class="empty-state hidden" id="emptyState">
+            <svg viewBox="0 0 120 120" fill="none" class="empty-icon">
+                <circle cx="60" cy="60" r="50" stroke="#667eea" stroke-width="2" opacity="0.3"/>
+                <path d="M45 40v40M55 35v50M65 45v30M75 50v20" stroke="#667eea" stroke-width="4" stroke-linecap="round">
+                    <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+                </path>
+            </svg>
+            <p>Nenhum resultado encontrado</p>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading-state" id="loadingState">
+            <div class="pulse-loader">
+                <div class="pulse-ring"></div>
+                <div class="pulse-ring"></div>
+                <div class="pulse-ring"></div>
+                <svg viewBox="0 0 24 24" fill="currentColor" class="pulse-icon">
+                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55C7.79 13 6 14.79 6 17s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                </svg>
+            </div>
+            <p>A carregar músicas...</p>
+        </div>
     </main>
 
-    <footer>
-        <p>&copy; 2026 Meu Site de Teste. Hospedado no GitHub Pages.</p>
-    </footer>
+    <!-- Player Bar -->
+    <div class="player-bar" id="playerBar">
+        <div class="player-progress-bar" id="progressBarContainer">
+            <div class="player-progress" id="progressBar"></div>
+            <div class="player-progress-knob" id="progressKnob"></div>
+        </div>
+        <div class="player-content">
+            <div class="player-track-info">
+                <div class="player-artwork" id="playerArtwork">
+                    <svg viewBox="0 0 24 24" fill="currentColor" opacity="0.5">
+                        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55C7.79 13 6 14.79 6 17s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                    </svg>
+                </div>
+                <div class="player-text">
+                    <span class="player-title" id="playerTitle">Nenhuma música selecionada</span>
+                    <span class="player-artist" id="playerArtist"></span>
+                </div>
+            </div>
+            <div class="player-controls">
+                <button class="control-btn" id="prevBtn" title="Anterior">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/>
+                    </svg>
+                </button>
+                <button class="control-btn play-btn" id="playBtn" title="Reproduzir">
+                    <svg viewBox="0 0 24 24" fill="currentColor" id="playIcon">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor" id="pauseIcon" class="hidden">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                    </svg>
+                </button>
+                <button class="control-btn" id="nextBtn" title="Seguinte">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="player-extra">
+                <span class="time-display">
+                    <span id="currentTime">0:00</span> / <span id="totalTime">0:00</span>
+                </span>
+                <div class="volume-container">
+                    <button class="control-btn volume-btn" id="volumeBtn" title="Volume">
+                        <svg viewBox="0 0 24 24" fill="currentColor" id="volumeIcon">
+                            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                        </svg>
+                        <svg viewBox="0 0 24 24" fill="currentColor" id="volumeMuteIcon" class="hidden">
+                            <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+                        </svg>
+                    </button>
+                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="80">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="audioPlayer" preload="auto"></audio>
 
     <script src="script.js"></script>
 </body>
